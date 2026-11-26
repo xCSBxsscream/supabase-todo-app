@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Supabase ตอนที่ 4-5: ระบบสมาชิก (Auth + RLS + Search + Storage)</title>
+
+  <!-- โหลด Web Font ภาษาไทย 'Prompt' จาก Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- โหลด Supabase JS SDK v2 ผ่าน CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="app-header">
+      <span class="badge">ปฏิบัติการตอนที่ 4–5 : Auth + RLS + Storage</span>
+      <h1>My Secure To-Do (Supabase Full Lab)</h1>
+      <p class="subtitle">ระบบจัดการงานส่วนบุคคล พร้อมยืนยันตัวตน ค้นหา และแนบรูปภาพ</p>
+    </header>
+
+    <!-- ส่วนที่ 1: กล่องเข้าสู่ระบบ / สมัครสมาชิก -->
+    <section id="authSection" class="card auth-card">
+      <h2>เข้าสู่ระบบ หรือ สมัครสมาชิกใหม่</h2>
+      <p class="hint">
+        หมายเหตุ: ให้ปิดตัวเลือก <strong>Confirm email</strong> ใน Supabase Dashboard
+        (Authentication &gt; Sign In / Providers &gt; Email) เพื่อทดสอบสมัครและล็อกอินได้ทันที
+      </p>
+
+      <form id="authForm" class="auth-form">
+        <label for="emailInput">อีเมล (Email)</label>
+        <input type="email" id="emailInput" placeholder="student1@example.com" required />
+
+        <label for="passwordInput">รหัสผ่าน (Password อย่างน้อย 6 ตัวอักษร)</label>
+        <input type="password" id="passwordInput" placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6" required />
+
+        <div class="auth-buttons">
+          <button type="button" id="loginBtn" class="btn btn-primary">เข้าสู่ระบบ (Sign In)</button>
+          <button type="button" id="signupBtn" class="btn btn-outline">สมัครสมาชิก (Sign Up)</button>
+        </div>
+      </form>
+      <p id="authMessage" class="auth-message"></p>
+    </section>
+
+    <!-- ส่วนที่ 2: พื้นที่ใช้งานหลัก (แสดงเมื่อล็อกอินสำเร็จ) -->
+    <div id="appSection" class="hidden">
+      <div class="user-bar">
+        <div>
+          <span class="user-label">เข้าสู่ระบบในชื่อ:</span>
+          <strong id="userEmailDisplay">-</strong>
+        </div>
+        <button id="logoutBtn" class="btn btn-delete">ออกจากระบบ</button>
+      </div>
+
+      <section class="card">
+        <h2>เพิ่มรายการงานใหม่</h2>
+        <form id="todoForm" class="todo-form">
+          <input type="text" id="todoTitle" placeholder="พิมพ์ชื่องานที่ต้องทำ..." required />
+          <select id="todoCategory" aria-label="หมวดหมู่">
+            <option value="ทั่วไป">ทั่วไป</option>
+            <option value="การเรียน">การเรียน</option>
+            <option value="งานส่วนตัว">งานส่วนตัว</option>
+            <option value="ความปลอดภัย">ความปลอดภัย</option>
+          </select>
+          <div class="file-row">
+            <label for="todoImage" class="file-label">แนบรูปภาพประกอบ (ถ้ามี - Storage):</label>
+            <input type="file" id="todoImage" accept="image/*" />
+          </div>
+          <button type="submit" id="submitTodoBtn" class="btn btn-primary">+ บันทึกงาน</button>
+        </form>
+      </section>
+
+      <section class="card filter-card">
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่องานด้วย .ilike()..." />
+        <select id="filterCategory" aria-label="กรองตามหมวดหมู่">
+          <option value="ALL">ทุกหมวดหมู่</option>
+          <option value="ทั่วไป">ทั่วไป</option>
+          <option value="การเรียน">การเรียน</option>
+          <option value="งานส่วนตัว">งานส่วนตัว</option>
+          <option value="ความปลอดภัย">ความปลอดภัย</option>
+        </select>
+      </section>
+
+      <section class="card">
+        <div class="list-header">
+          <h2>รายการงานของฉัน (<span id="todoCount">0</span>)</h2>
+          <button id="refreshBtn" type="button" class="btn btn-secondary">รีเฟรช</button>
+        </div>
+        <ul id="todoList" class="todo-list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
